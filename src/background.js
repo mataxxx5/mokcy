@@ -6,10 +6,12 @@ import {
 } from './utils';
 import {
   createStore,
-  dispatchHandler,
   dispatch,
   OPERATIONS,
+  handleDispatch,
 } from './data';
+
+const stores = {};
 
 const mockOutgoingHTTPRequests = (storedMockData, debugee) => (source, method, params) => {
   if (method === "Fetch.requestPaused") {
@@ -45,37 +47,49 @@ const formatMockedResponse = (matchingMockResponse) => {
     body: btoa(unescape(encodeURIComponent(matchingMockResponse.data)))
   };
 }
-const dispatchHandlerInstance = dispatchHandler();
 
 const runtimeStore = createStore({
-  name: 'runtime_store'
+  name: 'runtime_store',
+  onInitialization: () => {
+    console.log('initialising runtime_store...')
+  },
 });
-dispatchHandlerInstance.registerStore(runtimeStore);
+stores['runtime_store'] = runtimeStore
 
 const preferanceStore = createStore({
-  name: 'preferance_store'
+  name: 'preferance_store',
+  onInitialization: () => {
+    console.log('initialising preferance_store...')
+  },
 });
-dispatchHandlerInstance.registerStore(preferanceStore);
+stores['preferance_store'] = preferanceStore
 
 const networkStore = createStore({
   name: 'network_store',
+  onInitialization: () => {
+    console.log('initialising network_store...')
+  },
   onWrite: async (writtenNetworkData) => {
+    console.log('befpre reading runtime store')
     let debugee = await dispatch({
       targetStore: 'runtime_store',
       operation: OPERATIONS.READ,
       key: 'debugee',
     });
+    console.log('debugee: ', debugee);
 
     const activeTab = await getActiveTab();
     if (activeTab.id !== debugee?.tabId) {
       debugee = { tabId: activeTab.id };
-      await dispatch({
+      const runtime = await dispatch({
         targetStore: 'runtime_store',
         operation: OPERATIONS.WRITE,
         key: 'debugee',
         data: debugee
       });
       console.log('debugee: ', debugee);
+      console.log('before... ');
+      console.log('runtime: ', runtime);
     }
     console.log('active tab:  ', activeTab);
     await refreshTab(activeTab);
@@ -105,6 +119,30 @@ const networkStore = createStore({
     // });
   }
 });
-dispatchHandlerInstance.registerStore(networkStore);
+stores['network_store'] = networkStore
 
 
+// const handleDispatch = (request, sender, sendResponse, stores) => {
+//   console.log('stores: ', stores);
+//   const targetStore = stores[request.targetStore];
+//   console.log('request', request);
+//   if (!targetStore) {
+//     console.log(`[DISPATCH_HANDLER] provided targetStore: ${request.targetStore} doesn't exits, \n request: ${JSON.stringify(request)}`)
+//     return;
+//   }
+//   console.log('deciding if to write or read')
+//   if (request.operation === WRITE) {
+//     if (targetStore === 'runtime_store') {
+//       console.log('writing to runtime...')
+//     }
+//     console.log('before writing to store')
+//     targetStore().write(request.key, request.data);
+//     console.log('before sending response')
+//     sendResponse(`stored ${JSON.stringify([request.key])}`);
+//   } else if (request.operation === READ) {
+//     const data = targetStore().read(request.key);
+//     sendResponse(data);
+//   }
+// };
+
+handleDispatch(stores);

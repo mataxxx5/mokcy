@@ -1,4 +1,4 @@
 export { default as dispatch } from './dispatch';
-export { default as OPERATIONS } from './operations';
-export { default as dispatchHandler } from './dispatchHandler';
-export { createStore as createStore } from './createStore';
+export { handleDispatch } from './dispatchHandler';
+export { createStore } from './createStore';
+export * as CONSTANTS from './constants';

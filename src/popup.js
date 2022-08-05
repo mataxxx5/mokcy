@@ -1,10 +1,13 @@
 import {
   dispatch,
-  OPERATIONS,
+  CONSTANTS,
+  DispatchHandler
 } from './data';
 import {
   generateIdFromRequestObject
 } from './utils';
+
+const { OPERATIONS } = CONSTANTS;
 
 const storeEntryData = async (entries) => {
   const requests = {};
@@ -30,7 +33,7 @@ const storeEntryData = async (entries) => {
     };
   });
   console.log('before dispatch of network data...',)
-  const returnVal = await dispatch({
+  const returnVal = dispatch({
     targetStore: 'network_store',
     operation: OPERATIONS.WRITE,
     key: 'networkData',
