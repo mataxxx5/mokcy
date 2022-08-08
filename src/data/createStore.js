@@ -33,11 +33,11 @@ export const createStore = ({
 
   onInitialization();
 
-  return () => ({
+  return {
     getStoreName,
     read,
     write,
     reset
-  })
+  };
 };
 

@@ -1,13 +1,29 @@
 import {
-  dispatch,
-  CONSTANTS,
-  DispatchHandler
+  CONSTANTS
+} from './data';
+import {
+  createStore,
+  Connection,
 } from './data';
 import {
   generateIdFromRequestObject
 } from './utils';
 
 const { OPERATIONS } = CONSTANTS;
+
+const stores = {};
+const networkStore = createStore({
+  name: 'network_store',
+  onInitialization: () => {
+    console.log('initialising network_store inside popup...')
+  },
+  onWrite: async (writtenNetworkData) => {
+    console.log('onwrite inside popu')
+  }
+});
+stores[networkStore.getStoreName()] = networkStore;
+
+const { dispatch } = Connection(stores);
 
 const storeEntryData = async (entries) => {
   const requests = {};
@@ -33,7 +49,7 @@ const storeEntryData = async (entries) => {
     };
   });
   console.log('before dispatch of network data...',)
-  const returnVal = dispatch({
+  const returnVal = await dispatch({
     targetStore: 'network_store',
     operation: OPERATIONS.WRITE,
     key: 'networkData',

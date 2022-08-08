@@ -1,5 +1,6 @@
 'use strict';
 
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
@@ -62,6 +63,7 @@ const common = {
     new MiniCssExtractPlugin({
       filename: '[name].css',
     }),
+    new NodePolyfillPlugin()
   ],
 };
 

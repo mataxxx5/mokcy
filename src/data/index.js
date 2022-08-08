@@ -1,4 +1,3 @@
-export { default as dispatch } from './dispatch';
-export { handleDispatch } from './dispatchHandler';
 export { createStore } from './createStore';
+export { default as Connection } from './Connection';
 export * as CONSTANTS from './constants';
