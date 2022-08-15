@@ -1,11 +1,5 @@
 export default async () => {
-  return await new Promise((resolve, reject) => {
-    try {
-      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        resolve(tabs[0]);
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
+  const queryOptions = { active: true, lastFocusedWindow: true };
+  let [tab] = await chrome.tabs.query(queryOptions);
+  return tab;
 }

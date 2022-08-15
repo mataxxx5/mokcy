@@ -1,87 +1,86 @@
 'use strict';
+import Connection from './connection';
 import {
   getActiveTab,
   refreshTab,
-  generateIdFromRequestObject
+  generateIdFromRequestObject,
+  setupStores
 } from './utils';
-import {
-  createStore,
-  Connection,
-} from './data';
+import { 
+  NETWORK_STORE, 
+  RUNTIME_STORE, 
+  PREFERANCE_STORE 
+} from './constants';
 
-const stores = {};
-
-const mockOutgoingHTTPRequests = (storedMockData, debugee) => (source, method, params) => {
+const mockOutgoingHTTPRequests = (storedMockData, debugee, resourceTypes, urlMatchType) => async (source, method, params) => {
   if (method === "Fetch.requestPaused") {
-    // const activeTab = await getActiveTab();
+    const original = {requestId: params.requestId}
+    let mock = null;
 
-    // if (source.tabId === activeTab.id) {
-      console.log("mockOutgoingHTTPRequests debugee: ", debugee);
-      console.log("storedMockData: ", storedMockData);
-
-      const matchingMockResponse = findMatchingMockResponse(params.request, storedMockData);
-
-      if (matchingMockResponse) {
-        const response = formatMockedResponse(matchingMockResponse);
-        chrome.debugger.sendCommand(debugee, 'Fetch.fulfillRequest', response);
-      } else {
-        chrome.debugger.sendCommand(debugee, 'Fetch.continueRequest', {requestId: params.requestId});
+    if (resourceTypes.find(resourceType => resourceType === params.resourceType)) {
+      const activeTab = await getActiveTab();
+      
+      if (source.tabId === activeTab?.id ) { 
+        const matchingMockResponse = findMatchingMockResponse(params.request, storedMockData, urlMatchType);
+        if (matchingMockResponse) {
+          console.log('matchingMockResponse: ', matchingMockResponse);
+          mock = formatMockedResponse(params, matchingMockResponse);
+        } 
       }
-    // }
+    }
+
+    if (mock) {
+      chrome.debugger.sendCommand(debugee, 'Fetch.fulfillRequest', mock);
+    } else {
+      chrome.debugger.sendCommand(debugee, 'Fetch.continueRequest', original);
+    }
   }
 };
 
-const findMatchingMockResponse = (request, storedMockData) => {
+const findMatchingMockResponse = (request, storedMockData, urlMatchType) => {
   const mockResponseCollection = storedMockData.responses;
-  const requestId = generateIdFromRequestObject(request);
+  const requestId = generateIdFromRequestObject(request, false, urlMatchType);
   return mockResponseCollection?.[requestId] ? mockResponseCollection?.[requestId] : null;
 };
 
-const formatMockedResponse = (matchingMockResponse) => {
+const formatMockedResponse = (params, matchingMockResponse) => {
   return {
     requestId: params.requestId,
     responseCode: matchingMockResponse.status,
-    binaryResponseHeaders: btoa(unescape(encodeURIComponent(JSON.stringify([...matchingMockResponse.headers, {name: 'mocked', value: "true"}]).replace(/(?:\r\n|\r|\n)/g, '\0')))),
+    binaryResponseHeaders: btoa(unescape(encodeURIComponent(JSON.stringify(matchingMockResponse.headers).replace(/(?:\r\n|\r|\n)/g, '\0')))),
     body: btoa(unescape(encodeURIComponent(matchingMockResponse.data)))
   };
 }
 
-const runtimeStore = createStore({
-  name: 'runtime_store',
-  onInitialization: () => {
-    console.log('initialising runtime_store...')
+const networkStoreOnWrite = async (key, writtenNetworkData, allStores) => {
+  let debugee = allStores[RUNTIME_STORE].read('debugee');
+  const resourceTypes = allStores[PREFERANCE_STORE].read('resourceTypes');
+  const urlMatchType = allStores[PREFERANCE_STORE].read('urlMatchType');
+  const activeTab = await getActiveTab();
+
+  if (activeTab.id !== debugee?.tabId) {
+    if (debugee) {
+      chrome.debugger.detach(debugee);
+    }
+    debugee = { tabId: activeTab.id };
+    allStores[RUNTIME_STORE].write('debugee', debugee);
+  }
+
+  await refreshTab(activeTab);
+
+  chrome.debugger.attach(debugee, "1.0", () => {
+    chrome.debugger.sendCommand(debugee, "Fetch.enable", { patterns: [{ urlPattern: '*' }] });
+    chrome.debugger.onEvent.addListener(mockOutgoingHTTPRequests(writtenNetworkData, debugee, resourceTypes, urlMatchType))
+  });
+};
+
+const stores = setupStores({
+  [NETWORK_STORE]: {
+    onWrite: networkStoreOnWrite
   },
-});
-
-stores[runtimeStore.getStoreName()] = runtimeStore;
-
-const preferanceStore = createStore({
-  name: 'preferance_store',
-  onInitialization: () => {
-    console.log('initialising preferance_store...')
-  },
-});
-stores[preferanceStore.getStoreName()] = preferanceStore;
-
-const networkStore = createStore({
-  name: 'network_store',
-  onInitialization: () => {
-    console.log('initialising network_store...')
-  },
-  onWrite: async (writtenNetworkData) => {
-
-    // const activeTab = await getActiveTab();
-    // if (activeTab.id !== debugee?.tabId) {
-    //   debugee = { tabId: activeTab.id };
-    // }
-    // console.log('active tab:  ', activeTab);
-    // await refreshTab(activeTab);
-
-    // chrome.debugger.attach(debugee, "1.0", () => {
-    //   chrome.debugger.sendCommand(debugee, "Fetch.enable", { patterns: [{ urlPattern: '*' }] });
-    // });
+  [PREFERANCE_STORE]: {
+    onWrite: (key, preferenaceData) => { console.log('preferenaceData: ', { key, preferenaceData}) }
   }
 });
-stores[networkStore.getStoreName()] = networkStore;
 
 Connection(stores);

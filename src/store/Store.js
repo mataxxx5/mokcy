@@ -1,27 +1,28 @@
-export const createStore = ({
+const Store = ({
   onWrite = () => {},
   onRead = () => {},
   onReset = () => {},
   onInitialization = () => {},
   name
-}) => {
+}, allStores) => {
   const store = {
     name: name,
     content: {}
   };
 
-  const _onWrite = (updateData) => onWrite(updateData);
-  const _onRead = (readData) => onRead(readData);
-  const _onReset = () => onReset(readData);
+  const _onWrite = (key, updateData) => onWrite(key, updateData, allStores);
+  const _onRead = (key, readData) => onRead(key, readData, allStores);
+  const _onReset = () => onReset(readData, allStores);
+  
   const read = (key) => {
     const requestedData = store.content?.[key]
-    _onRead(requestedData);
+    _onRead(key, requestedData);
     return requestedData;
   };
 
   const write = (key, data) => {
     store.content[key] = data;
-    _onWrite(data);
+    _onWrite(key, data);
   };
 
   const reset = () => {
@@ -31,7 +32,7 @@ export const createStore = ({
 
   const getStoreName = () => store.name;
 
-  onInitialization();
+  onInitialization(allStores);
 
   return {
     getStoreName,
@@ -41,3 +42,4 @@ export const createStore = ({
   };
 };
 
+export default Store;

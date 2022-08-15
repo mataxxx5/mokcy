@@ -1,7 +1,7 @@
 {
   "name": "mocky",
   "version": "0.1.0",
-  "description": "My Chrome Extension",
+  "description": "Mocky",
   "private": true,
   "scripts": {
     "watch": "webpack --mode=development --watch --config config/webpack.config.js",
@@ -19,6 +19,9 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@vaadin/multi-select-combo-box": "^23.1.5",
+    "@vaadin/radio-group": "^23.1.5",
+    "@vaadin/upload": "^23.1.5",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "uuid": "^8.3.2"
   }

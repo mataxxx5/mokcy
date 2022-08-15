@@ -1,29 +1,62 @@
 import {
-  CONSTANTS
-} from './data';
+  OPERATIONS,
+  INITIALLY_SELECTED_RESOURCE_TYPES,
+  RESOURCE_TYPES,
+  INITIALLY_SELECTED_URL_MATCHER_TYPE,
+  URL_MATCHER_TYPES,
+  PREFERANCE_STORE,
+  NETWORK_STORE
+} from './constants';
+import Connection from './connection';
 import {
-  createStore,
-  Connection,
-} from './data';
-import {
-  generateIdFromRequestObject
+  generateIdFromRequestObject,
+  setupStores
 } from './utils';
+import '@vaadin/multi-select-combo-box';
+import '@vaadin/radio-group';
+import '@vaadin/upload';
 
-const { OPERATIONS } = CONSTANTS;
+const stores = setupStores();
+const { dispatch } = Connection(stores, false);
 
-const stores = {};
-const networkStore = createStore({
-  name: 'network_store',
-  onInitialization: () => {
-    console.log('initialising network_store inside popup...')
-  },
-  onWrite: async (writtenNetworkData) => {
-    console.log('onwrite inside popu')
+const handleResourceTypeChange = (evt) => {
+  dispatch({
+    targetStore: PREFERANCE_STORE,
+    operation: OPERATIONS.WRITE,
+    key: 'resourceTypes',
+    data: evt.detail.value
+  });
+}
+
+const comboBox = document.getElementById('resource-types');
+comboBox.addEventListener("selected-items-changed", handleResourceTypeChange);
+
+comboBox.items = Object.values(RESOURCE_TYPES);
+comboBox.selectedItems = INITIALLY_SELECTED_RESOURCE_TYPES;
+
+
+const handleURLMatcherChange = (evt) => {
+  dispatch({
+    targetStore: PREFERANCE_STORE,
+    operation: OPERATIONS.WRITE,
+    key: 'urlMatchType',
+    data: evt.detail.value
+  });
+};
+
+const urlMatcher = document.getElementById("url-matcher");
+const urlOptions = document.querySelectorAll("url-matcher-radio-item");
+urlOptions.forEach((urlOption, i) => {
+  urlOption.value = URL_MATCHER_TYPES[i];
+
+  if (URL_MATCHER_TYPES[i] === INITIALLY_SELECTED_URL_MATCHER_TYPE) {
+    urlOption.checked = true;
   }
 });
-stores[networkStore.getStoreName()] = networkStore;
 
-const { dispatch } = Connection(stores);
+urlMatcher.addEventListener("value-changed", handleURLMatcherChange);
+urlMatcher.value = INITIALLY_SELECTED_URL_MATCHER_TYPE;
+
 
 const storeEntryData = async (entries) => {
   const requests = {};
@@ -31,7 +64,7 @@ const storeEntryData = async (entries) => {
 
   entries.forEach((entry) => {
     const { request, response } = entry;
-    const idObject = generateIdFromRequestObject(request);
+    const idObject = generateIdFromRequestObject(request, true, urlMatcher.value);
 
     requests[`${idObject}`] = requests[`${idObject}`] ?
       [
@@ -48,14 +81,15 @@ const storeEntryData = async (entries) => {
       headers: response.headers
     };
   });
-  console.log('before dispatch of network data...',)
-  const returnVal = await dispatch({
-    targetStore: 'network_store',
+
+  dispatch({
+    targetStore: NETWORK_STORE,
     operation: OPERATIONS.WRITE,
     key: 'networkData',
     data: { requests, responses}
   });
-  console.log('after writing value: ', returnVal);
+
+  window.close();
 }
 
 const processHARJSon = (HARJson) => {
@@ -66,16 +100,19 @@ const processHARJSon = (HARJson) => {
 
 const convertFileContentsIntoHARJson = (evt) => {
   const HARJson = JSON.parse(evt.target.result);
+
   processHARJSon(HARJson);
 }
 
 const handleFileUpload = () => {
   const [file] = fileUpload.files;
+
   const fileReader = new FileReader();
 
   fileReader.onload = convertFileContentsIntoHARJson;
   fileReader.readAsText(file, 'utf-8')
-}
+};
 
 const fileUpload = document.getElementById("file-upload");
-fileUpload.addEventListener("change", handleFileUpload);
+fileUpload.addEventListener("upload-success", handleFileUpload);
+

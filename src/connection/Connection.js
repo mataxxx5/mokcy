@@ -1,19 +1,11 @@
 import { v4 as uuidv4 } from 'uuid'
-import { OPERATIONS } from './constants';
 import DispatchCache from './DispatchCache';
+import { OPERATIONS } from '../constants';
+import { createPromise } from '../utils';
+
 const { READ, WRITE } = OPERATIONS;
 
-const createPromise = () => {
-  let resolver;
-  return [
-      new Promise((resolve, reject) => {
-          resolver = resolve;
-      }),
-      resolver,
-  ];
-};
-
-const Connection  = (stores = {}) => {
+const Connection  = (stores = {}, background = true) => {
   const ports = {};
   const dispatchCache = DispatchCache();
 
@@ -63,7 +55,6 @@ const Connection  = (stores = {}) => {
   };
 
   const handleDispatch = (port) => (msg) => {
-    console.log('handleDispatch: ', port, msg);
     if (msg.direction === 'to' ) {
       const targetStore = stores[msg.targetStore];
       if (msg.operation === WRITE) {
@@ -88,17 +79,31 @@ const Connection  = (stores = {}) => {
 
   const onInitialization = () => {
     chrome.runtime.onConnect.addListener(port => {
-      port.onMessage.addListener(handleDispatch(port,));
+      console.log('port: ', port);
+      const portName = port.name;
+      if(!ports?.[portName]) {
+        ports[portName] = port;
+      }
+      return port.onMessage.addListener(handleDispatch(port));
     });
-    Object.values(stores).forEach(store => {
-      const portName = store.getStoreName();
-      console.log('onInitialization: ', portName)
-      const port = chrome.runtime.connect({name: portName});
-      console.log('post connect...')
-      ports[portName] = port;
 
-      console.log('ports ahahaha: ', ports);
-    });
+    if (!background) {
+      Object.values(stores).forEach(store => {
+        const portName = store.getStoreName();
+        const port = chrome.runtime.connect({name: portName});
+        port.onDisconnect.addListener(() => {
+          console.log("Disconnected");
+        });
+        ports[portName] = port;
+      });
+    }
+    
+    console.log('post intialisation...')
+
+    // chrome.runtime.onDisconnect.addListener(port => {
+    //   console.log('onDisconnect running in connection...');
+    //   // port.onMessage.addListener(handleDispatch(port,));
+    // });
   };
 
 
