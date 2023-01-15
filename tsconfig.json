@@ -1,0 +1,30 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "isolatedModules": false,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "target": "es5",
+    "module": "esnext",
+    "sourceMap": false,
+    "types": ["@types/chrome", "node", "@types/har-format"],
+    "typeRoots": ["node_modules/@types"],
+    "moduleResolution": "node",
+    "lib": ["es2019", "dom"],
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "downlevelIteration": true,
+    "baseUrl": "./src",
+    "outDir": "./build"
+  },
+  "include": [
+    "src",
+    "typings.d.ts",
+    ".eslintrc.js"
+  ],
+  "exclude": ["node_modules", "dist", "coverage", "src/**/*.spec.ts"]
+}
