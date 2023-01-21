@@ -1,6 +1,6 @@
 # Mocky
 
-A chrome extension to mock outgoing network request based on resource types from a provided .har file.
+A chrome extension that mocks outgoing network requests based on resource types with a mock extracted from provided .har file.
 
 ## How are request matched and mocked
 
@@ -8,7 +8,7 @@ Url, request method, resource type and post data(if present) are used to compare
 
 
 Extension currently published:
-- [x] Chrome https://chrome.google.com/webstore/detail/mocky/hpmgblgihdlkcegplalpibfbpheknido
+- [x] [Chrome](https://chrome.google.com/webstore/detail/mocky/hpmgblgihdlkcegplalpibfbpheknido)
 - [ ] Firefox
 - [ ] Opera (Chrome Build)
 - [ ] Edge (Chrome Build)
