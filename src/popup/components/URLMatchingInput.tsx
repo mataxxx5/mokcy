@@ -5,18 +5,22 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
 
-import { usePreferences, Preferences } from '../hooks/preferencesContext'
+import { usePreferences } from '../hooks/preferencesContext'
 import { URL_MATCHER_TYPES } from '../constants'
 
-export default function URLMatchingInput ({ mockingInProgress }: { mockingInProgress: boolean }) {
+interface URLMatchingInputProps {
+  mockingInProgress: boolean
+}
+
+export default function URLMatchingInput ({ mockingInProgress }: URLMatchingInputProps) {
   const { preferences, setPreferences } = usePreferences()
 
-  console.log('URLMatchingInput preferences: ', preferences)
+  if (typeof preferences?.urlMatching === 'undefined') {
+    return null
+  }
 
   return (
-    !preferences?.urlMatching
-      ? null
-      : <FormControl>
+    <FormControl>
       <FormLabel id="mc--url-matching-radio-buttons-group-label">URL Matching</FormLabel>
       <RadioGroup
         aria-labelledby="mc--url-matching-radio-buttons-group-label"
@@ -25,7 +29,7 @@ export default function URLMatchingInput ({ mockingInProgress }: { mockingInProg
           setPreferences({
             ...preferences,
             urlMatching: (event.target as HTMLInputElement).value
-          } as Preferences)
+          })
         }}
         value={preferences?.urlMatching}
         row

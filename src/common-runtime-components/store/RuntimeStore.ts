@@ -8,10 +8,11 @@ export interface RuntimeData {
 }
 
 export default class RuntimeStore extends Store implements StoreInterface {
-  runtimeData: RuntimeData | undefined
+  runtimeData: RuntimeData | null
 
   constructor () {
     super(STORAGE_KEYS.RUNTIME_EVENTS, new SessionStorage())
+    this.runtimeData = null
 
     chrome.storage.onChanged.addListener((changes, areaName) => {
       const [key, value] = Object.entries(changes)[0]
@@ -27,7 +28,7 @@ export default class RuntimeStore extends Store implements StoreInterface {
     })
   }
 
-  async getAll (): Promise<RuntimeData | undefined> {
+  async getAll (): Promise<RuntimeData | null> {
     if (this.initPromise != null) {
       this.runtimeData = await this.initPromise as unknown as RuntimeData
       this.initPromise = null

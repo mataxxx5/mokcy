@@ -5,15 +5,14 @@ import { SessionStorage } from '../storage'
 import { isEqual } from 'lodash'
 
 export default class ErrorStore extends Store implements StoreInterface {
-  errorData: string | undefined
+  errorData: string | null
 
   constructor () {
     super(STORAGE_KEYS.RUNTIME_ERRORS, new SessionStorage())
+    this.errorData = null
 
     chrome.storage.onChanged.addListener((changes, areaName) => {
-      console.log('in a listenere.....')
       const [key, value] = Object.entries(changes)[0]
-      console.log('[ErrorStore] on change, key, value]: ', key, value)
       if (key === this.nameSpace && areaName === this.storage.getType() && !isEqual(this.errorData, value.newValue)) {
         this.errorData = value.newValue as string
         console.log('[ErrorStore] on change, new error data: ', value)
@@ -26,7 +25,7 @@ export default class ErrorStore extends Store implements StoreInterface {
     })
   }
 
-  async getAll (): Promise<string | undefined> {
+  async getAll (): Promise<string | null> {
     if (this.initPromise != null) {
       this.errorData = await this.initPromise as unknown as string
       this.initPromise = null

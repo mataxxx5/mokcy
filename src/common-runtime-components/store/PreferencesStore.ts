@@ -5,10 +5,11 @@ import { LocalStorage } from '../storage/Storage'
 import { isEqual } from 'lodash'
 
 export default class PreferencesStore extends Store implements Store {
-  preferences: Preferences | undefined
+  preferences: Preferences | null
 
   constructor () {
     super(STORAGE_KEYS.PREFERENCE_SETTINGS, new LocalStorage())
+    this.preferences = null
     this.store({
       resourceTypes: DEFAULT_RESOURCE_TYPES,
       urlMatching: DEFAULT_URL_MATCHER_TYPE
@@ -18,7 +19,7 @@ export default class PreferencesStore extends Store implements Store {
       const [key, value] = Object.entries(changes)[0]
 
       if (key === this.nameSpace && areaName === this.storage.getType() && !isEqual(this.preferences, value.newValue)) {
-        this.preferences = value.newValue as Preferences
+        this.preferences = value.newValue
         console.log('[PreferencesStore] on change, new preferences data: ', this.preferences)
 
         Object.values(this.registeredListeners).forEach((listenerCallback: Function) => {
@@ -29,7 +30,7 @@ export default class PreferencesStore extends Store implements Store {
     })
   }
 
-  async getAll (): Promise<Preferences | undefined> {
+  async getAll (): Promise<Preferences | null> {
     if (this.initPromise != null) {
       this.preferences = await this.initPromise as unknown as Preferences
       this.initPromise = null

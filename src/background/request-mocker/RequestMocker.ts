@@ -90,7 +90,7 @@ export default class RequestMocker {
       return
     }
 
-    if (preferences?.resourceTypes?.length && (preferences.resourceTypes.find(resourceType => resourceType === params.resourceType) == null)) {
+    if (typeof preferences?.resourceTypes !== 'undefined' && (preferences.resourceTypes.find(resourceType => resourceType === params.resourceType) == null)) {
       console.log('[RequestMocker] resourceType of the request is not selected for mocking, continue with the orginal response for request: ',
         { request: params.request, resourceType: params.resourceType }
       )
@@ -140,13 +140,6 @@ export default class RequestMocker {
   async startMocking () {
     const debugee = await this.debugee.getInstance()
     console.log('[RequestMocker] attaching the debugger: ', debugee)
-    const possibleTargets = await chrome.debugger.getTargets()
-
-    possibleTargets.forEach(async (target) => {
-      if (target.tabId === debugee.tabId && target.attached) {
-        await chrome.debugger.detach(debugee)
-      }
-    })
 
     try {
       await chrome.debugger.attach(debugee, '1.2')

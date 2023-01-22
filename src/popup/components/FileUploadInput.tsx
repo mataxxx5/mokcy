@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import LoadingButton from '@mui/lab/LoadingButton'
 import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
@@ -44,7 +44,7 @@ export default function FileUploadInput ({ mockingInProgress }: { mockingInProgr
               Select .har file
               <input type="file" accept=".har" hidden onChange={(evt) => {
                 const file = evt.target.files?.[0]
-                const fileName = file?.name || ''
+                const fileName = typeof file?.name === 'undefined' ? '' : file.name
                 const fileReader = new FileReader()
 
                 fileReader.onloadstart = () => {
@@ -61,13 +61,13 @@ export default function FileUploadInput ({ mockingInProgress }: { mockingInProgr
                   }
                   try {
                     const urlMatcherType = DEFAULT_URL_MATCHER_TYPE
-                    const HARAsJSON: Har | null = convertFileContentsIntoHARJson(evt)
+                    const HarAsJSON: Har | null = convertFileContentsIntoHARJson(evt)
                     let requestAndResponses = {}
 
-                    if (HARAsJSON !== null) {
-                      requestAndResponses = formatEntriesToRequestsAndResponses(HARAsJSON.log.entries, urlMatcherType)
+                    if (HarAsJSON !== null) {
+                      requestAndResponses = formatEntriesToRequestsAndResponses(HarAsJSON.log.entries, urlMatcherType)
                     }
-
+                    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
                     setLoadedMock({
                       ...requestAndResponses,
                       mockName: fileName
@@ -78,7 +78,7 @@ export default function FileUploadInput ({ mockingInProgress }: { mockingInProgr
                   } catch (e: any) {
                     setUploadedFile({
                       ...defaultFileUploadState,
-                      error: e
+                      error: e as Error
                     })
                   }
                 }

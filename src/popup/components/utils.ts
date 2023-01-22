@@ -50,7 +50,7 @@ export const generateIdFromRequestObject = (requestObject: Request, urlMatcherTy
 
   if (postData != null) {
     // har files storage postData as postData object, debugger request have postData as a string
-    idObject.postData = postData.text ? postData.text : postData
+    idObject.postData = typeof postData.text !== 'undefined' ? postData.text : postData
   }
 
   if (urlMatcherType === IGNORE_HOSTNAME_URL_MATCHER.value) {

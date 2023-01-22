@@ -1,4 +1,4 @@
-import { useState, useEffect, Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Unstable_Grid2'
 
@@ -14,64 +14,39 @@ import {
   ErrorStore,
   RuntimeData
 } from '../../common-runtime-components/store'
-
 import TitleSVG from '../../assets/images/title.svg'
-
-interface Props {}
-
-interface State {
-  mockingInProgress: boolean
-  errorMessage: String | undefined
-}
 
 const runtimeStore = new RuntimeStore()
 const errorStore = new ErrorStore()
-let runnCount = 0
-function App (): JSX.Element {
-  const [mockingInProgress, setMockingInProgressS] = useState<boolean>(false)
-  const [errorMessage, setErrorMessage] = useState<String | undefined>()
-  const setMockingInProgress = (dd: boolean) => {
-    setMockingInProgressS(dd)
-  }
-  useEffect(() => { // reacts to updates made to store
+
+const App = () => {
+  const [mockingInProgress, setMockingInProgress] = useState<boolean>(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>()
+
+  useEffect(() => {
     runtimeStore.registerUpdateLister('runtime', (newRuntimeValue: RuntimeData) => {
-      runnCount++
-      console.trace()
-      console.log('runnign this now count: ', runnCount)
       setMockingInProgress(newRuntimeValue.mockingInProgress)
     })
-  }, [])
-
-  useEffect(() => { // reacts to updates made to store
-    errorStore.registerUpdateLister('error', (newErrorValue: string) => {
-      console.log('[App] newErrorValue: ', newErrorValue)
-      setErrorMessage(newErrorValue)
-    })
-  }, [])
-
-  useEffect(() => { // initialise context with what's already in the store
-    runtimeStore.getAll().then((initialPreferencesValue: RuntimeData | undefined) => {
-      console.log('[App] setting initial value for runtime data: ', initialPreferencesValue)
+    runtimeStore.getAll().then((initialPreferencesValue: RuntimeData | null) => {
       setMockingInProgress(!(initialPreferencesValue == null) && initialPreferencesValue?.mockingInProgress)
     })
-  }, [])
-
-  useEffect(() => { // initialise context with what's already in the store
-    errorStore.getAll().then((initialErrorValue: string | undefined) => {
-      console.log('[App] setting initial value for error data: ', initialErrorValue)
-
+    errorStore.registerUpdateLister('error', (newErrorValue: string) => {
+      setErrorMessage(newErrorValue)
+    })
+    errorStore.getAll().then((initialErrorValue: string | null) => {
       setErrorMessage(initialErrorValue)
     })
   }, [])
 
-  console.log('[App] error: ', errorMessage)
   return (
     <div id='app-root'>
       <Box sx={{ flexGrow: 1, width: '100%' }}>
         <Grid container rowSpacing={3} columns={1}>
           <Grid xs={1}>
             <TitleSVG height='38px' width={'100%'}/>
-            <h3 className='mc--heading-subtitle'>To start mocking, upload .HAR file that will be used to replace browser made request with pre-loaded data</h3>
+            <h3 className='mc--heading-subtitle'>
+              To start mocking, upload .HAR file that will be used to replace browser made request with pre-loaded data
+            </h3>
           </Grid>
           <Grid xs={1}>
             <ResourceTypesInput mockingInProgress={mockingInProgress} />
@@ -90,7 +65,7 @@ function App (): JSX.Element {
               }}
             />
           </Grid>
-          { ((errorMessage != null) && errorMessage?.length > 0) && (
+          { (typeof errorMessage === 'string') && (
             <Grid xs={1}>
               <div style={{ color: 'rgb(211, 47, 47)', fontWeight: 400 }}>
                 {`Error: ${errorMessage}`}
