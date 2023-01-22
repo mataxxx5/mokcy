@@ -1,7 +1,7 @@
 import { Request, Response } from 'har-format'
 import { MockData } from '../../popup/hooks/loadedMockContext'
 import { RuntimeData } from '../../common-runtime-components/store/RuntimeStore'
-import { generateIdFromRequestObject } from '../../popup/components/utils'
+
 import Debugee from '../debugee/Debugee'
 import {
   NetworkMockStore,
@@ -9,7 +9,9 @@ import {
   RuntimeStore,
   ErrorStore
 } from '../../common-runtime-components/store'
-import { DEFAULT_URL_MATCHER_TYPE } from '../../popup/constants'
+import { generateIdFromRequestObject } from '../../utils'
+import { DEFAULT_URL_MATCHER_TYPE } from '../../constants'
+
 
 export default class RequestMocker {
   mockingInProgress: boolean

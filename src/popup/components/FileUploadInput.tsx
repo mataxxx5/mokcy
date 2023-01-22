@@ -7,11 +7,11 @@ import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { Har } from 'har-format'
 
 import { useLoadedMock, MockData } from '../hooks/loadedMockContext'
-import { DEFAULT_URL_MATCHER_TYPE } from '../constants'
+import { DEFAULT_URL_MATCHER_TYPE } from '../../constants'
 import {
   convertFileContentsIntoHARJson,
   formatEntriesToRequestsAndResponses
-} from './utils'
+} from '../../utils'
 
 interface fileUploadState {
   error: Error | null
