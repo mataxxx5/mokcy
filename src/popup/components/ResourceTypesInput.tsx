@@ -6,13 +6,17 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox'
 import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
 
-import { usePreferences, Preferences } from '../hooks/preferencesContext'
+import { usePreferences } from '../hooks/preferencesContext'
 import { RESOURCE_TYPES } from '../constants'
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />
 const checkedIcon = <CheckBoxIcon fontSize="small" />
 
-export default function CheckboxesTags ({ mockingInProgress }: { mockingInProgress: boolean }) {
+interface ResourceTypesInputProps {
+  mockingInProgress: boolean
+}
+
+const ResourceTypesInput = ({ mockingInProgress }: ResourceTypesInputProps) => {
   const { preferences, setPreferences } = usePreferences()
 
   if ((preferences?.resourceTypes) == null) {
@@ -51,9 +55,11 @@ export default function CheckboxesTags ({ mockingInProgress }: { mockingInProgre
           setPreferences({
             ...preferences,
             resourceTypes: newValue
-          } as Preferences)
+          })
         }}
       />
     </FormControl>
   )
 }
+
+export default ResourceTypesInput

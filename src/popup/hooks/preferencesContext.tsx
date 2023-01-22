@@ -9,7 +9,7 @@ import { PreferencesStore } from '../../common-runtime-components/store'
 
 export interface Preferences {
   urlMatching: string
-  resourceTypes: String[]
+  resourceTypes: string[]
 }
 
 interface PreferencesContextValue {
@@ -22,10 +22,14 @@ const PreferencesContext = createContext<PreferencesContextValue>({
   setPreferences: () => {}
 })
 
+interface Props {
+  children: React.ReactNode
+}
+
 const preferencesStore = new PreferencesStore()
 
-function PreferencesProvider ({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<null | Preferences>()
+const PreferencesProvider: React.FC<Props> = ({ children }) => {
+  const [state, setState] = useState<null | Preferences>(null)
 
   useEffect(() => { // reacts to updates made to store
     preferencesStore.registerUpdateLister('preferences', (newPreferencesValue: Preferences) => {
@@ -34,16 +38,16 @@ function PreferencesProvider ({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => { // initialise context with what's already in the store
-    preferencesStore.getAll().then((initialPreferencesValue: Preferences | undefined) => {
+    preferencesStore.getAll().then((initialPreferencesValue) => {
       console.log('[Preferences] setting initial value for preferences context: ', initialPreferencesValue)
       setState(initialPreferencesValue)
     })
   }, [])
 
-  const value = {
+  const value: PreferencesContextValue = {
     preferences: state,
     setPreferences: (newPreferenceValue: Preferences) => { preferencesStore.store(newPreferenceValue) }
-  } as PreferencesContextValue
+  }
 
   return (
     <PreferencesContext.Provider value={value} >
@@ -52,7 +56,7 @@ function PreferencesProvider ({ children }: { children: React.ReactNode }) {
   )
 }
 
-function usePreferences () {
+const usePreferences = () => {
   const context = useContext(PreferencesContext)
 
   if (context === undefined) {

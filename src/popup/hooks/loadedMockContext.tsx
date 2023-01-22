@@ -26,7 +26,7 @@ const LoadedMockContext = createContext<LoadedMockContextValue>({
 const networkStore = new NetworkMockStore()
 
 function LoadedMockProvider ({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<null | MockData | undefined>(null)
+  const [state, setState] = useState<null | MockData>(null)
 
   useEffect(() => { // reacts to updates made to store
     networkStore.registerUpdateLister('settingMocks', (newNetworkMock: MockData) => {
@@ -35,16 +35,16 @@ function LoadedMockProvider ({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => { // initialise context with what's already in the store
-    networkStore.getAll().then((initialNetworkMock: MockData | undefined) => {
+    networkStore.getAll().then((initialNetworkMock: MockData | null) => {
       console.log('[MockData] setting initial value for mock context: ', initialNetworkMock)
       setState(initialNetworkMock)
     })
   }, [])
 
-  const value = {
+  const value: LoadedMockContextValue = {
     loadedMock: state,
     setLoadedMock: (newMockData: MockData) => { networkStore.store(newMockData) }
-  } as LoadedMockContextValue
+  }
 
   return (
     <LoadedMockContext.Provider value={value} >

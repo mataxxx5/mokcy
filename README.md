@@ -15,4 +15,4 @@ Extension currently published:
 - [ ] Brave
 - [ ] Safari
 
-> Credit to [Debdut Karmakar](https://github.com/debdut) for [extension template](https://github.com/Debdut/browser-extension)
+Credit to [Debdut Karmakar](https://github.com/debdut) for [extension template](https://github.com/Debdut/browser-extension)

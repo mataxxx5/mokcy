@@ -5,16 +5,16 @@ import { LocalStorage } from '../storage'
 import { isEqual } from 'lodash'
 
 export default class NetworkMockStore extends Store implements StoreInterface {
-  mocks: MockData | undefined
+  mocks: MockData | null
 
   constructor () {
     super(STORAGE_KEYS.NETWORK_MOCKS, new LocalStorage())
-
+    this.mocks = null
     chrome.storage.onChanged.addListener((changes, areaName) => {
       const [key, value] = Object.entries(changes)[0]
 
       if (key === this.nameSpace && areaName === this.storage.getType() && !isEqual(this.mocks, value.newValue)) {
-        this.mocks = value.newValue as MockData
+        this.mocks = value.newValue
         console.log('[NetworkMockStore] on change, new runtime data: ', this.mocks)
 
         Object.values(this.registeredListeners).forEach((listenerCallback: Function) => {
@@ -25,7 +25,7 @@ export default class NetworkMockStore extends Store implements StoreInterface {
     })
   }
 
-  async getAll (): Promise<MockData | undefined> {
+  async getAll (): Promise<MockData | null> {
     if (this.initPromise != null) {
       this.mocks = await this.initPromise as unknown as MockData
       this.initPromise = null

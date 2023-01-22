@@ -1,18 +1,18 @@
-import React from 'react'
 import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined'
 import { Response } from 'har-format'
 import { useLoadedMock } from '../hooks/loadedMockContext'
 
-export default function LoadedMockSummary () {
+const LoadedMockSummary = () => {
   const { loadedMock } = useLoadedMock()
 
   if (loadedMock == null) {
     return null
   }
 
-  const [successfulRequests, failedRequests] = Object.values(loadedMock.responses || {}).reduce<Response[][]>((acc, val) => {
+  const [successfulRequests, failedRequests] = Object.values(loadedMock.responses).reduce<Response[][]>((acc, val) => {
     if (val.status === 200) {
       acc[0].push(val)
     } else {
@@ -45,3 +45,5 @@ export default function LoadedMockSummary () {
     </FormControl>
   )
 }
+
+export default LoadedMockSummary
