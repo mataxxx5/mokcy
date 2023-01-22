@@ -1,5 +1,5 @@
 import { Storage } from '../storage/Storage'
-import { STORAGE_KEYS_STRINGS } from '../../popup/constants'
+import { STORAGE_KEYS_STRINGS } from '../../constants'
 
 export interface StoreInterface {
   storage?: Storage

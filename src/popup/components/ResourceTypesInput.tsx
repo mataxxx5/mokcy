@@ -7,7 +7,7 @@ import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
 
 import { usePreferences } from '../hooks/preferencesContext'
-import { RESOURCE_TYPES } from '../constants'
+import { RESOURCE_TYPES } from '../../constants'
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />
 const checkedIcon = <CheckBoxIcon fontSize="small" />

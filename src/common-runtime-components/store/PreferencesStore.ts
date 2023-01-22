@@ -1,10 +1,10 @@
 import { Preferences } from '../../popup/hooks/preferencesContext'
-import { STORAGE_KEYS, DEFAULT_RESOURCE_TYPES, DEFAULT_URL_MATCHER_TYPE } from '../../popup/constants'
-import { Store } from './Store'
+import { STORAGE_KEYS, DEFAULT_RESOURCE_TYPES, DEFAULT_URL_MATCHER_TYPE } from '../../constants'
+import { StoreInterface, Store } from './Store'
 import { LocalStorage } from '../storage/Storage'
 import { isEqual } from 'lodash'
 
-export default class PreferencesStore extends Store implements Store {
+export default class PreferencesStore extends Store implements StoreInterface {
   preferences: Preferences | null
 
   constructor () {

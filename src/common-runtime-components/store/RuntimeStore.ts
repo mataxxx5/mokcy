@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from '../../popup/constants'
+import { STORAGE_KEYS } from '../../constants'
 import { StoreInterface, Store } from './Store'
 import { SessionStorage } from '../storage/Storage'
 import { isEqual } from 'lodash'

@@ -6,7 +6,7 @@ import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
 
 import { usePreferences } from '../hooks/preferencesContext'
-import { URL_MATCHER_TYPES } from '../constants'
+import { URL_MATCHER_TYPES } from '../../constants'
 
 interface URLMatchingInputProps {
   mockingInProgress: boolean

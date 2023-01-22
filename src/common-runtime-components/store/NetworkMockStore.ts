@@ -1,5 +1,5 @@
 import { MockData } from '../../popup/hooks/loadedMockContext'
-import { STORAGE_KEYS } from '../../popup/constants'
+import { STORAGE_KEYS } from '../../constants'
 import { StoreInterface, Store } from './Store'
 import { LocalStorage } from '../storage'
 import { isEqual } from 'lodash'
