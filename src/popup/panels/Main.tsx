@@ -65,7 +65,7 @@ const App = () => {
               }}
             />
           </Grid>
-          { (typeof errorMessage === 'string') && (
+          { (typeof errorMessage === 'string' && errorMessage.length > 0) && (
             <Grid xs={1}>
               <div style={{ color: 'rgb(211, 47, 47)', fontWeight: 400 }}>
                 {`Error: ${errorMessage}`}

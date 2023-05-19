@@ -35,9 +35,6 @@ export default class RequestMocker {
       } else {
         await this.stopMocking()
       }
-    });
-    this.debugee.addOnUpdateListener(() => {
-      this.errorStore.store('');
     })
 
     chrome.debugger.onEvent.addListener((source: chrome.debugger.Debuggee, method: string, params: any) => {
@@ -144,14 +141,7 @@ export default class RequestMocker {
 
   async startMocking () {
     const debugee = await this.debugee.getInstance()
-    console.log('[RequestMocker] attaching the debugger: ', debugee, this.debugee.tab)
-
-    if (!isValidHttpUrl(this.debugee.tab?.url || '')) {
-      this.errorStore.store('Incorrect protocol. Please debug a tab with a valid https or http url');
-      this.mockingInProgress = false
-      this.runtimeStore.store({ isMockingInProgres: this.isMockingInProgres })
-      return;
-    }
+    console.log('[RequestMocker] attaching the debugger: ', debugee)
 
     try {
       await chrome.debugger.attach(debugee, '1.2')
@@ -163,37 +153,23 @@ export default class RequestMocker {
 
       const errorMessage: string = (e as Error).message
       this.errorStore.store(errorMessage)
-      this.mockingInProgress = false
-      this.runtimeStore.store({ isMockingInProgres: this.isMockingInProgres })
-      // this.stopMocking()
+      this.stopMocking()
     }
   }
 
   async stopMocking () {
-    // try {
-    //   await chrome.debugger.detach(await this.debugee.getInstance())
-    //   this.errorStore.store('')
-    // } catch (e) {
-    //   this.errorStore.store('')
-    //   const errorMessage: string = (e as Error).message
-    //   console.log('[RequestMocker] error de-attaching the debugger: ', errorMessage)
-    //   // this.errorStore.store(errorMessage)
-    // }
+    try {
+      await chrome.debugger.detach(await this.debugee.getInstance())
+      this.errorStore.store('')
+    } catch (e) {
+      this.errorStore.store('')
+      const errorMessage: string = (e as Error).message
+      console.log('[RequestMocker] error de-attaching the debugger: ', errorMessage)
+      // this.errorStore.store(errorMessage)
+    }
   }
-
 
   isMockingInProgres () {
     return this.mockingInProgress
   }
-}
-
-
-function isValidHttpUrl(haha: string) {
-  let url;
-  try {
-    url = new URL(haha);
-  } catch (_) {
-    return false;
-  }
-  return url.protocol === "http:" || url.protocol === "https:";
 }

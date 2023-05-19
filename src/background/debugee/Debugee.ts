@@ -41,4 +41,8 @@ export default class Debugee {
     console.log('[Debugee] getTabDebuggerIsAttached: ', this.tab)
     return this.tab
   }
+
+  addOnUpdateListener (onUpdateHandler: (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => void)  {
+    chrome.tabs.onUpdated.addListener(onUpdateHandler);
+  }
 }
