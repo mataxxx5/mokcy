@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const CopyPlugin = require('copy-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const {
@@ -17,7 +18,7 @@ const prodPlugins = []
 const isProd = process.env.NODE_ENV === 'production'
 
 if (isProd) {
-  prodPlugins.push(new optimize.AggressiveMergingPlugin(), new optimize.OccurrenceOrderPlugin())
+  prodPlugins.push(new optimize.AggressiveMergingPlugin())
 }
 
 const Root = join(__dirname, '..')
@@ -32,7 +33,6 @@ const Lib = join(Source, 'lib')
 const config = {
   mode: process.env.NODE_ENV,
   target: 'web',
-  devtool: isProd ? 'none' : 'cheap-source-map',
   entry: {
     background: join(Background, 'index.ts'),
     popup: join(Popup, 'index.tsx')
@@ -154,6 +154,10 @@ const config = {
       extractComments: false
     })]
   }
+}
+
+if (!isProd) {
+  config.devtool = 'cheap-source-map'
 }
 
 const buildConfig = (browser, path) => ({

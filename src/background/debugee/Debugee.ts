@@ -1,44 +1,52 @@
+import { RuntimeStore } from '../../store'
+
 export default class Debugee {
-  debugee: chrome.debugger.Debuggee
-  initPromise: Promise<chrome.tabs.Tab[]> | null
-  tab: chrome.tabs.Tab | null
+  runtimeStore: RuntimeStore
+  currentFocusedTabId: number | null
 
-  constructor () {
-    this.debugee = {}
-    this.tab = null
-    this.initPromise = chrome.tabs.query({ active: true, currentWindow: true })
+  constructor (onTargetRemoved: Function) {
+    this.runtimeStore = new RuntimeStore()
+    this.currentFocusedTabId = null
 
-    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-      console.log('[Debugee] onUpdated ', { tabId, changeInfo, tab })
-      if (changeInfo.status === 'complete') {
-        console.log('[Debugee] setting new debugger tab to debug ', { tabId, activeInfo: changeInfo, tab })
-        this.debugee = { tabId }
-        this.tab = tab
+    chrome.tabs.onRemoved.addListener((tabId) => {
+      if (tabId === this.currentFocusedTabId) {
+        onTargetRemoved()
       }
     })
   }
 
-  async resolveInitPromise (): Promise<void> {
-    if (this.initPromise != null) {
-      const tab = (await this.initPromise)[0]
+  async getAllTargets (): Promise<chrome.debugger.TargetInfo[]> {
+    return await chrome.debugger.getTargets()
+  }
 
-      if (typeof tab?.id === 'number') {
-        this.debugee = { tabId: tab.id }
-        this.tab = tab
+  async getAllAttachedTargets (): Promise<chrome.debugger.TargetInfo[]> {
+    return (await this.getAllTargets()).filter(target => target.attached && target.tabId)
+  }
+
+  getAttachedTarget () {
+    return this.currentFocusedTabId
+  }
+
+  async getFocusedTarget (tabId?: number): Promise<chrome.debugger.TargetInfo["tabId"] | null> {
+    const allAvailableTargets = await this.getAllTargets()
+    let activeTabId : number | null = tabId ? tabId : null;
+
+    if (activeTabId === null) {
+      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true, highlighted: true})
+      if (activeTab?.id) {
+        activeTabId = activeTab.id
       }
-      this.initPromise = null
     }
-  }
+    console.log('[Debugee] getFocusedTarget allAvailableTargets, activeTabId: ', allAvailableTargets, activeTabId)
+    if (activeTabId === null) {
+      return null
+    }
 
-  async getInstance (): Promise<chrome.debugger.Debuggee> {
-    await this.resolveInitPromise()
-    console.log('[Debugee] getInstance: ', this.debugee)
-    return this.debugee
-  }
-
-  async getTabDebuggerIsAttached (): Promise<chrome.tabs.Tab | null> {
-    await this.resolveInitPromise()
-    console.log('[Debugee] getTabDebuggerIsAttached: ', this.tab)
-    return this.tab
+    const matchingTarget = allAvailableTargets.find(target => target.tabId === activeTabId)
+    console.log('[Debugee] getFocusedTarget matchingTarget ', matchingTarget)
+    if (matchingTarget) {
+      this.currentFocusedTabId = activeTabId
+    }
+    return activeTabId || null
   }
 }

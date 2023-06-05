@@ -1,6 +1,6 @@
-import { STORAGE_KEYS } from '../../constants'
+import { STORAGE_KEYS } from '../constants'
 import { StoreInterface, Store } from './Store'
-import { SessionStorage } from '../storage/Storage'
+import { SessionStorage } from '../store/storage/Storage'
 import { isEqual } from 'lodash'
 
 export interface RuntimeData {
@@ -19,9 +19,9 @@ export default class RuntimeStore extends Store implements StoreInterface {
 
       if (key === this.nameSpace && areaName === this.storage.getType() && !isEqual(this.runtimeData, value.newValue)) {
         this.runtimeData = value.newValue as RuntimeData
-        console.log('[RuntimeStore] on change, new runtime data: ', this.runtimeData)
-        Object.values(this.registeredListeners).forEach((listenerCallback: Function) => {
-          console.log('[RuntimeStore]: Running callback with: ', this.runtimeData)
+        console.log('[NetworkMockStore] on change, new runtime data: ', this.runtimeData)
+
+        this.registeredListeners.forEach((listenerCallback: Function, i: number) => {
           listenerCallback(this.runtimeData)
         })
       }
@@ -30,8 +30,12 @@ export default class RuntimeStore extends Store implements StoreInterface {
 
   async getAll (): Promise<RuntimeData | null> {
     if (this.initPromise != null) {
-      this.runtimeData = await this.initPromise as unknown as RuntimeData
+      const storedRuntimeData = await this.initPromise as unknown as RuntimeData
       this.initPromise = null
+
+      if (storedRuntimeData !== undefined) {
+        this.runtimeData = storedRuntimeData
+      }
     }
     console.log('[RuntimeStore] getAll: ', this.runtimeData)
     return this.runtimeData

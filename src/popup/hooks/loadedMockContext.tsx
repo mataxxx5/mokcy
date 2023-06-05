@@ -5,12 +5,16 @@ import React, {
   useEffect
 } from 'react'
 import { Request, Response } from 'har-format'
-import { NetworkMockStore } from '../../common-runtime-components/store'
+import { NetworkMockStore } from '../../store'
 
+export type ErrorResponse = Response & {
+  _error: string
+}
 export interface MockData {
   requests: Record<string, Request>
-  responses: Record<string, Response>
+  responses: Record<string, Response | ErrorResponse>
   mockName: string
+  firstPageURL: string
 }
 
 interface LoadedMockContextValue {
@@ -29,7 +33,7 @@ function LoadedMockProvider ({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<null | MockData>(null)
 
   useEffect(() => { // reacts to updates made to store
-    networkStore.registerUpdateLister('settingMocks', (newNetworkMock: MockData) => {
+    networkStore.registerUpdateLister((newNetworkMock: MockData) => {
       setState(newNetworkMock)
     })
   }, [])
