@@ -67,7 +67,11 @@ export default function FileUploadInput ({ mockingInProgress }: { mockingInProgr
 
                     if (HarAsJSON !== null) {
                       requestAndResponses = formatEntriesToRequestsAndResponses(HarAsJSON.log.entries, urlMatcherType)
-                      firstPageURL = HarAsJSON.log.entries.find(({response}) => response.content.mimeType === "text/html")?.request?.url || null
+                      const firstDocumentEntry = HarAsJSON.log.entries.find(({ response }) => response.content.mimeType === 'text/html')
+
+                      if (typeof firstDocumentEntry?.request?.url === 'string') {
+                        firstPageURL = firstDocumentEntry.request.url
+                      }
                     }
 
                     console.log('[FileUploadInput] HarAsJSON: ', HarAsJSON)
@@ -75,7 +79,7 @@ export default function FileUploadInput ({ mockingInProgress }: { mockingInProgr
                     setLoadedMock({
                       ...requestAndResponses,
                       mockName: fileName,
-                      firstPageURL: firstPageURL
+                      firstPageURL
                     } as MockData)
                     setUploadedFile({
                       ...defaultFileUploadState

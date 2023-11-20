@@ -1,8 +1,7 @@
-
-// This is a Facade for interactign with chrome fetch API via chrome devtools protocol
 type onEventHandler = (source: chrome.debugger.Debuggee, method: string, params: any) => void
 type onDetachHandler = (source: chrome.debugger.Debuggee, reason: string) => void
 
+// This is a Facade for interactign with fetch API via CDP
 export default {
   addOnEventListener: (handler: onEventHandler) => {
     chrome.debugger.onEvent.addListener(handler)

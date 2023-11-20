@@ -26,4 +26,3 @@ runtimeStore.registerUpdateLister((newRuntimeValue: RuntimeData) => {
     requestInterceptor.stopInterceptingOutgoingRequests()
   }
 })
-

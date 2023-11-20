@@ -1,15 +1,14 @@
 
 import Debugee from '../debugee/Debugee'
-import FetchAPIFacade from '../common/FetchAPIFacade';
+import FetchAPIFacade from '../common/FetchAPIFacade'
 
-const errorBroadcast = new BroadcastChannel('error-channel');
+const errorBroadcast = new BroadcastChannel('error-channel')
 
 export default class RequestInterceptor {
   debugee: Debugee
 
   constructor (onRequestInterception: Function, onStopIntercepting?: Function) {
     this.debugee = new Debugee(this.stopInterceptingOutgoingRequests.bind(this))
-
     FetchAPIFacade.addOnEventListener((source: chrome.debugger.Debuggee, method: string, params: any) => {
       if (method === 'Fetch.requestPaused') {
         console.log('[RequestInterceptor] request intercepted: ', {
@@ -25,23 +24,22 @@ export default class RequestInterceptor {
         source, reason, onStopIntercepting
       })
 
-      if (reason === 'canceled_by_user' && onStopIntercepting) {
+      if (reason === 'canceled_by_user' && (onStopIntercepting != null)) {
         onStopIntercepting(source, reason)
       }
     })
   }
 
-  async startInterceptingOutgoingRequests (focusedTarget?: chrome.debugger.TargetInfo["tabId"]) {
-    const targetTabId = focusedTarget ? focusedTarget : (await this.debugee.getFocusedTarget())
+  async startInterceptingOutgoingRequests (focusedTarget?: chrome.debugger.TargetInfo['tabId']) {
+    const targetTabId = focusedTarget ?? (await this.debugee.getFocusedTarget())
     console.log('[RequestInterceptor] start request interception: ', targetTabId, focusedTarget)
 
     if (typeof targetTabId === 'number') {
       try {
-
-        await FetchAPIFacade.enableFetchEvents({tabId: targetTabId }, { 
-          patterns: [{ urlPattern: '*' }], 
-          handleAuthRequests: true, 
-          requestStage: 'requestStage' 
+        await FetchAPIFacade.enableFetchEvents({ tabId: targetTabId }, {
+          patterns: [{ urlPattern: '*' }],
+          handleAuthRequests: true,
+          requestStage: 'requestStage'
         })
       } catch (e) {
         errorBroadcast.postMessage((e as Error).message)
@@ -52,12 +50,11 @@ export default class RequestInterceptor {
   }
 
   async stopInterceptingOutgoingRequests () {
-    console.log('this.debugee ', this.debugee)
     const attachedTargetTabId = this.debugee.getAttachedTarget()
     console.log('[RequestInterceptor] stop request interception target id: ', attachedTargetTabId)
-    if (attachedTargetTabId) {
+    if (attachedTargetTabId !== null) {
       try {
-        await FetchAPIFacade.disableFetchEvents({tabId: attachedTargetTabId })
+        await FetchAPIFacade.disableFetchEvents({ tabId: attachedTargetTabId })
       } catch (e) {
         errorBroadcast.postMessage((e as Error).message)
       }

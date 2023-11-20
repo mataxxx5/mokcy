@@ -27,13 +27,13 @@ export default class Debugee {
     return this.currentFocusedTabId
   }
 
-  async getFocusedTarget (tabId?: number): Promise<chrome.debugger.TargetInfo["tabId"] | null> {
+  async getFocusedTarget (tabId?: number): Promise<chrome.debugger.TargetInfo['tabId'] | null> {
     const allAvailableTargets = await this.getAllTargets()
-    let activeTabId : number | null = tabId ? tabId : null;
+    let activeTabId: number | null = tabId ?? null
 
     if (activeTabId === null) {
-      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true, highlighted: true})
-      if (activeTab?.id) {
+      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true, highlighted: true })
+      if (typeof activeTab?.id === 'number') {
         activeTabId = activeTab.id
       }
     }
@@ -44,9 +44,12 @@ export default class Debugee {
 
     const matchingTarget = allAvailableTargets.find(target => target.tabId === activeTabId)
     console.log('[Debugee] getFocusedTarget matchingTarget ', matchingTarget)
-    if (matchingTarget) {
+    if (matchingTarget != null) {
       this.currentFocusedTabId = activeTabId
+    } else {
+      return null
     }
-    return activeTabId || null
+
+    return activeTabId
   }
 }

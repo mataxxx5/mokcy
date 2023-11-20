@@ -3,7 +3,8 @@ const CopyPlugin = require('copy-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const {
   DefinePlugin,
-  optimize
+  optimize,
+  ProvidePlugin
 } = require('webpack')
 const GenerateJsonFromJsPlugin = require('generate-json-from-js-webpack-plugin')
 const {
@@ -121,6 +122,9 @@ const config = {
     }),
     new CopyPlugin({
       patterns: [
+        {
+          from: 'node_modules/webextension-polyfill/dist/browser-polyfill.js',
+        },
         {
           from: join(Assets, 'html'),
           to: 'assets/html'

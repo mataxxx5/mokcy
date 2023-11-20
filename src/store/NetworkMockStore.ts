@@ -28,7 +28,7 @@ export default class NetworkMockStore extends Store implements StoreInterface {
 
   async getAll (): Promise<MockData | null> {
     if (this.initPromise != null) {
-      const storedMocks =  await this.initPromise as unknown as MockData
+      const storedMocks = await this.initPromise as unknown as MockData
       this.initPromise = null
 
       if (storedMocks !== undefined) {
@@ -38,5 +38,4 @@ export default class NetworkMockStore extends Store implements StoreInterface {
     console.log('[NetworkMockStore] getAll: ', this.mocks)
     return this.mocks
   }
-
 }

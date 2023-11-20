@@ -53,7 +53,7 @@ function App () {
       runtimeStore.store({ mockingInProgress: false })
     })
   }, [])
-  console.log('>>>> loadedMock.firstPageURL: ', loadedMock?.firstPageURL);
+  console.log('>>>> loadedMock.firstPageURL: ', loadedMock?.firstPageURL)
   return (
     <div id='app-root'>
       <Box sx={{ flexGrow: 1, width: '100%' }}>
@@ -77,21 +77,17 @@ function App () {
             <StateButton
               mockingInProgress={mockingInProgress}
               setMockingInProgress={(newInProgressMockingValue: boolean) => {
-                // if (newInProgressMockingValue) {
-                  
-                // }
                 wakeUpSWBroadcast.postMessage({ mockingInProgress: newInProgressMockingValue })
                 runtimeStore.store({ mockingInProgress: newInProgressMockingValue })
               } } />
           </Grid>
           {(loadedMock?.firstPageURL != null)
             ? <a href="#" onClick={async () => {
-                const [focusedTab] = await chrome.tabs.query({ active: true, currentWindow: true, highlighted: true})
-                if (focusedTab.id) {
-                  chrome.tabs.update(focusedTab.id, { url: loadedMock.firstPageURL})
-                }
-    
-              }} >Launch to first recorded request</a>
+              const [focusedTab] = await chrome.tabs.query({ active: true, currentWindow: true, highlighted: true })
+              if (focusedTab.id) {
+                chrome.tabs.update(focusedTab.id, { url: loadedMock.firstPageURL })
+              }
+            }} >Launch to first recorded request</a>
             : null}
           {(typeof errorMessage === 'string') && (
             <Grid xs={1}>
