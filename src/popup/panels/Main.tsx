@@ -53,7 +53,7 @@ function App () {
       runtimeStore.store({ mockingInProgress: false })
     })
   }, [])
-  console.log('>>>> loadedMock.firstPageURL: ', loadedMock?.firstPageURL)
+
   return (
     <div id='app-root'>
       <Box sx={{ flexGrow: 1, width: '100%' }}>
