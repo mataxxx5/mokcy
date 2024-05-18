@@ -48,7 +48,7 @@ function App () {
       setErrorMessage(initialErrorValue)
     })
     errorBroadcast.addEventListener('message', ({ data }) => {
-      console.log('error: ', data)
+      console.log('[Main] error: ', data)
       alert(data)
       runtimeStore.store({ mockingInProgress: false })
     })
