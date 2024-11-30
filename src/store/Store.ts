@@ -1,5 +1,5 @@
-import { Storage } from '../storage/Storage'
-import { STORAGE_KEYS_STRINGS } from '../../constants'
+import { Storage } from '../store/storage/Storage'
+import { STORAGE_KEYS_STRINGS } from '../constants'
 
 export interface StoreInterface {
   storage?: Storage
@@ -14,12 +14,12 @@ export abstract class Store {
   storage: Storage
   nameSpace: STORAGE_KEYS_STRINGS
   initPromise: Promise<JSON> | null
-  registeredListeners: Record<string, Function>
+  registeredListeners: Function[]
 
   constructor (nameSpace: STORAGE_KEYS_STRINGS, storage: Storage) {
     this.storage = storage
     this.nameSpace = nameSpace
-    this.registeredListeners = {}
+    this.registeredListeners = []
     this.initPromise = this.storage.retrieve(this.nameSpace)
   }
 
@@ -32,7 +32,7 @@ export abstract class Store {
     await this.storage.delete(this.nameSpace)
   }
 
-  registerUpdateLister (functionKey: string, listener: Function) {
-    this.registeredListeners[functionKey] = listener
+  registerUpdateLister (listener: Function) {
+    this.registeredListeners.push(listener)
   }
 }

@@ -5,7 +5,8 @@ import React, {
   useEffect
 } from 'react'
 
-import { PreferencesStore } from '../../common-runtime-components/store'
+import { DEFAULT_RESOURCE_TYPES, DEFAULT_URL_MATCHER_TYPE } from '../../constants'
+import { PreferencesStore } from '../../store'
 
 export interface Preferences {
   urlMatching: string
@@ -32,7 +33,7 @@ const PreferencesProvider: React.FC<Props> = ({ children }) => {
   const [state, setState] = useState<null | Preferences>(null)
 
   useEffect(() => { // reacts to updates made to store
-    preferencesStore.registerUpdateLister('preferences', (newPreferencesValue: Preferences) => {
+    preferencesStore.registerUpdateLister((newPreferencesValue: Preferences) => {
       setState(newPreferencesValue)
     })
   }, [])
@@ -40,7 +41,14 @@ const PreferencesProvider: React.FC<Props> = ({ children }) => {
   useEffect(() => { // initialise context with what's already in the store
     preferencesStore.getAll().then((initialPreferencesValue) => {
       console.log('[Preferences] setting initial value for preferences context: ', initialPreferencesValue)
-      setState(initialPreferencesValue)
+      if (initialPreferencesValue === null) {
+        preferencesStore.store({
+          resourceTypes: DEFAULT_RESOURCE_TYPES,
+          urlMatching: DEFAULT_URL_MATCHER_TYPE
+        })
+      } else {
+        setState(initialPreferencesValue)
+      }
     })
   }, [])
 

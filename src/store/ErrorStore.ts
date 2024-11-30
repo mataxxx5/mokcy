@@ -1,7 +1,7 @@
 
-import { STORAGE_KEYS } from '../../constants'
+import { STORAGE_KEYS } from '../constants'
 import { StoreInterface, Store } from './Store'
-import { SessionStorage } from '../storage'
+import { SessionStorage } from './storage'
 import { isEqual } from 'lodash'
 
 export default class ErrorStore extends Store implements StoreInterface {
@@ -18,7 +18,6 @@ export default class ErrorStore extends Store implements StoreInterface {
         console.log('[ErrorStore] on change, new error data: ', value)
 
         Object.values(this.registeredListeners).forEach((listenerCallback: Function) => {
-          console.log('[ErrorStore]: Running callback with: ', this.errorData)
           listenerCallback(this.errorData)
         })
       }

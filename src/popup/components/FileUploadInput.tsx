@@ -63,14 +63,23 @@ export default function FileUploadInput ({ mockingInProgress }: { mockingInProgr
                     const urlMatcherType = DEFAULT_URL_MATCHER_TYPE
                     const HarAsJSON: Har | null = convertFileContentsIntoHARJson(evt)
                     let requestAndResponses = {}
+                    let firstPageURL = null
 
                     if (HarAsJSON !== null) {
                       requestAndResponses = formatEntriesToRequestsAndResponses(HarAsJSON.log.entries, urlMatcherType)
+                      const firstDocumentEntry = HarAsJSON.log.entries.find(({ response }) => response.content.mimeType === 'text/html')
+
+                      if (typeof firstDocumentEntry?.request?.url === 'string') {
+                        firstPageURL = firstDocumentEntry.request.url
+                      }
                     }
+
+                    console.log('[FileUploadInput] HarAsJSON: ', HarAsJSON)
                     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
                     setLoadedMock({
                       ...requestAndResponses,
-                      mockName: fileName
+                      mockName: fileName,
+                      firstPageURL
                     } as MockData)
                     setUploadedFile({
                       ...defaultFileUploadState
@@ -106,6 +115,9 @@ export default function FileUploadInput ({ mockingInProgress }: { mockingInProgr
                   setLoadedMock(null)
                 }}
                 disabled={mockingInProgress}
+                style={{
+                  width: '400px'
+                }}
               />
           )}
         </>

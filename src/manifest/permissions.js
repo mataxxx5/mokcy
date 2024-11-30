@@ -17,7 +17,7 @@ module.exports = [
   // 'cookies',
   'debugger',
   // 'declarativeContent',
-  'declarativeNetRequest',
+  // 'declarativeNetRequest',
   // 'declarativeNetRequestFeedback',
   // 'declarativeWebRequest',
   // 'desktopCapture',
@@ -64,10 +64,10 @@ module.exports = [
   // 'topSites',
   // 'tts',
   // 'ttsEngine',
-  'unlimitedStorage',
+  'unlimitedStorage'
   // 'vpnProvider',
   // 'wallpaper',
   // 'webNavigation',
-  'webRequest'
+  // 'webRequest'
   // 'webRequestBlocking'
 ]

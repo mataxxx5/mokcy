@@ -1,7 +1,7 @@
-import { MockData } from '../../popup/hooks/loadedMockContext'
-import { STORAGE_KEYS } from '../../constants'
+import { MockData } from '../popup/hooks/loadedMockContext'
+import { STORAGE_KEYS } from '../constants'
 import { StoreInterface, Store } from './Store'
-import { LocalStorage } from '../storage'
+import { LocalStorage } from '../store/storage'
 import { isEqual } from 'lodash'
 
 export default class NetworkMockStore extends Store implements StoreInterface {
@@ -10,14 +10,15 @@ export default class NetworkMockStore extends Store implements StoreInterface {
   constructor () {
     super(STORAGE_KEYS.NETWORK_MOCKS, new LocalStorage())
     this.mocks = null
+
     chrome.storage.onChanged.addListener((changes, areaName) => {
       const [key, value] = Object.entries(changes)[0]
 
       if (key === this.nameSpace && areaName === this.storage.getType() && !isEqual(this.mocks, value.newValue)) {
         this.mocks = value.newValue
-        console.log('[NetworkMockStore] on change, new runtime data: ', this.mocks)
+        console.log('[NetworkMockStore] on change, new mock data: ', this.mocks)
 
-        Object.values(this.registeredListeners).forEach((listenerCallback: Function) => {
+        this.registeredListeners.forEach((listenerCallback: Function) => {
           console.log('[NetworkMockStore]: Running callback with: ', this.mocks)
           listenerCallback(this.mocks)
         })
@@ -27,8 +28,12 @@ export default class NetworkMockStore extends Store implements StoreInterface {
 
   async getAll (): Promise<MockData | null> {
     if (this.initPromise != null) {
-      this.mocks = await this.initPromise as unknown as MockData
+      const storedMocks = await this.initPromise as unknown as MockData
       this.initPromise = null
+
+      if (storedMocks !== undefined) {
+        this.mocks = storedMocks
+      }
     }
     console.log('[NetworkMockStore] getAll: ', this.mocks)
     return this.mocks

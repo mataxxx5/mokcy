@@ -1,6 +1,6 @@
 import { Entry, Request, Response } from 'har-format'
 
-import generateIdFromRequestObject from './generateIdFromRequestObject';
+import generateIdFromRequestObject from './generateIdFromRequestObject'
 
 export default (entries: Entry[], urlMatcherType: string) => {
   const requests: Record<string, Request> = {}

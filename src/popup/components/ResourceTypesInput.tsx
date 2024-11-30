@@ -31,7 +31,10 @@ const ResourceTypesInput = ({ mockingInProgress }: ResourceTypesInputProps) => {
       <Autocomplete
         multiple
         id="mc--resource-types-checkboxes-tags"
-        options={Object.values(RESOURCE_TYPES)}
+        options={[
+          'All',
+          ...Object.values(RESOURCE_TYPES)
+        ]}
         disableCloseOnSelect
         value={preferences?.resourceTypes}
         limitTags={2}
@@ -52,10 +55,17 @@ const ResourceTypesInput = ({ mockingInProgress }: ResourceTypesInputProps) => {
         )}
         disabled={mockingInProgress}
         onChange={(event, newValue) => {
-          setPreferences({
-            ...preferences,
-            resourceTypes: newValue
-          })
+          if (newValue[newValue.length - 1] === 'All') {
+            setPreferences({
+              ...preferences,
+              resourceTypes: Object.values(RESOURCE_TYPES)
+            })
+          } else {
+            setPreferences({
+              ...preferences,
+              resourceTypes: newValue
+            })
+          }
         }}
       />
     </FormControl>
