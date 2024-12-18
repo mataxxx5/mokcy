@@ -66,6 +66,7 @@ export default function FileUploadInput ({ mockingInProgress }: { mockingInProgr
                     let firstPageURL = null
 
                     if (HarAsJSON !== null) {
+                      console.log('[FileUploadInput] formatEntriesToRequestsAndResponses - urlMatcherType: ', urlMatcherType);
                       requestAndResponses = formatEntriesToRequestsAndResponses(HarAsJSON.log.entries, urlMatcherType)
                       const firstDocumentEntry = HarAsJSON.log.entries.find(({ response }) => response.content.mimeType === 'text/html')
 

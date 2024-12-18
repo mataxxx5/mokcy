@@ -1,6 +1,6 @@
 {
   "name": "mocky",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Browser extension that intercepts network request and resolves them with mocks in the prvoided har file",
   "engines": {
     "node": ">=16.13.1",

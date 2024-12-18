@@ -7,7 +7,7 @@ import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
 
 import { usePreferences } from '../hooks/preferencesContext'
-import { RESOURCE_TYPES } from '../../constants'
+import { RESOURCE_TYPES, DEFAULT_URL_MATCHER_TYPE } from '../../constants'
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />
 const checkedIcon = <CheckBoxIcon fontSize="small" />
@@ -19,9 +19,7 @@ interface ResourceTypesInputProps {
 const ResourceTypesInput = ({ mockingInProgress }: ResourceTypesInputProps) => {
   const { preferences, setPreferences } = usePreferences()
 
-  if ((preferences?.resourceTypes) == null) {
-    return null
-  }
+  console.log('[ResourceTypesInput] preferences: ', preferences)
 
   return (
     <FormControl style={{ width: '100%' }}>
@@ -36,7 +34,7 @@ const ResourceTypesInput = ({ mockingInProgress }: ResourceTypesInputProps) => {
           ...Object.values(RESOURCE_TYPES)
         ]}
         disableCloseOnSelect
-        value={preferences?.resourceTypes}
+        value={preferences?.resourceTypes || []}
         limitTags={2}
         renderOption={(props, option, { selected }) => (
           <li {...props}>
@@ -56,15 +54,25 @@ const ResourceTypesInput = ({ mockingInProgress }: ResourceTypesInputProps) => {
         disabled={mockingInProgress}
         onChange={(event, newValue) => {
           if (newValue[newValue.length - 1] === 'All') {
-            setPreferences({
-              ...preferences,
-              resourceTypes: Object.values(RESOURCE_TYPES)
-            })
+            preferences ? 
+              setPreferences({
+                ...preferences,
+                resourceTypes: Object.values(RESOURCE_TYPES)
+              }) :
+              setPreferences({
+                urlMatching: DEFAULT_URL_MATCHER_TYPE,
+                resourceTypes: Object.values(RESOURCE_TYPES)
+              }) 
           } else {
-            setPreferences({
-              ...preferences,
-              resourceTypes: newValue
-            })
+            preferences ? 
+              setPreferences({
+                ...preferences,
+                resourceTypes: newValue
+              }) :
+              setPreferences({
+                urlMatching: DEFAULT_URL_MATCHER_TYPE,
+                resourceTypes: newValue
+              }) 
           }
         }}
       />
