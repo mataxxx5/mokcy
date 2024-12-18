@@ -18,9 +18,10 @@ const requestInterceptor = new RequestInterceptor(
   }
 )
 
-runtimeStore.registerUpdateLister((newRuntimeValue: RuntimeData) => {
+runtimeStore.registerUpdateLister(async (newRuntimeValue: RuntimeData) => {
   console.log('[index] newRuntimeValue: ', newRuntimeValue)
   if (newRuntimeValue.mockingInProgress) {
+    await requestResolver.loadContext();
     requestInterceptor.startInterceptingOutgoingRequests()
   } else {
     requestInterceptor.stopInterceptingOutgoingRequests()

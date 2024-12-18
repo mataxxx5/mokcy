@@ -34,20 +34,24 @@ function LoadedMockProvider ({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { // reacts to updates made to store
     networkStore.registerUpdateLister((newNetworkMock: MockData) => {
+      console.log('[LoadedMockContext] mocks were changed: ', newNetworkMock)
       setState(newNetworkMock)
     })
   }, [])
 
   useEffect(() => { // initialise context with what's already in the store
     networkStore.getAll().then((initialNetworkMock: MockData | null) => {
-      console.log('[MockData] setting initial value for mock context: ', initialNetworkMock)
+      console.log('[LoadedMockContext] setting initial value for mock context: ', initialNetworkMock)
       setState(initialNetworkMock)
     })
   }, [])
 
   const value: LoadedMockContextValue = {
     loadedMock: state,
-    setLoadedMock: (newMockData: MockData) => { networkStore.store(newMockData) }
+    setLoadedMock: (newMockData: MockData) => { 
+      console.log('[LoadedMockContext] storing new mock: ', newMockData)
+      networkStore.store(newMockData)
+    }
   }
 
   return (

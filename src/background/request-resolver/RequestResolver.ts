@@ -2,6 +2,8 @@ import {
   NetworkMockStore,
   PreferencesStore
 } from '../../store'
+import { Preferences } from '../../popup/hooks/preferencesContext';
+import { MockData } from '../../popup/hooks/loadedMockContext';
 import { formatMockedResponse, ErrorResponse } from './utils'
 import { Response } from 'har-format'
 import { harErrorToErrorResonMap } from './constants'
@@ -14,14 +16,22 @@ const errorBroadcast = new BroadcastChannel('error-channel')
 export default class RequestResolver {
   mockStore: NetworkMockStore
   preferencesStore: PreferencesStore
+  mockResponses: MockData['responses'] | undefined
+  preferences: Preferences | null
 
   constructor () {
     this.mockStore = new NetworkMockStore()
     this.preferencesStore = new PreferencesStore()
+    this.preferences = null;
+  }
+
+  async loadContext() {
+    this.mockResponses = (await this.mockStore.getAll())?.responses
+    this.preferences = await this.preferencesStore.getAll()
   }
 
   async resolveRequestWithMock (mockResponse: Response | ErrorResponse, requestId: string, debugee: chrome.debugger.Debuggee) {
-    if ((mockResponse as ErrorResponse)._error !== '') {
+    if ((mockResponse as ErrorResponse)._error !== null) {
       console.log('[RequestResolver] failing request with error recorded in HAR response: ', mockResponse)
       await FetchAPIFacade.failFetchRequest(debugee, requestId, harErrorToErrorResonMap[(mockResponse as ErrorResponse)._error])
     } else {
@@ -37,17 +47,17 @@ export default class RequestResolver {
 
   async handleRequest (debugee: chrome.debugger.Debuggee, method: string, params: any) {
     console.log('[RequestResolver] handleRequest: ', params)
-    const preferences = await this.preferencesStore.getAll()
-    const mocksResponses = (await this.mockStore.getAll())?.responses
+    console.log('[RequestResolver] preferences: ', this.preferences);
 
-    if (preferences?.resourceTypes.find(resourceType => resourceType === params.resourceType) !== undefined) {
+    if (this.preferences?.resourceTypes && !(new Set(this.preferences?.resourceTypes).has(params.resourceType))) {
       console.log('[RequestResolver] resource type: ', params.resourceType, ' is not selected for mocking')
       await this.continueRequest(params.requestId, debugee)
       return
     }
 
-    const responseId = generateIdFromRequestObject(params.request, preferences?.urlMatching ?? DEFAULT_URL_MATCHER_TYPE)
-    const matchedResponse = mocksResponses?.[responseId]
+    const responseId = generateIdFromRequestObject(params.request, this.preferences?.urlMatching ?? DEFAULT_URL_MATCHER_TYPE)
+    console.log('[RequestResolver] id from request object: ', { id: responseId, request: params.request, matchType: this.preferences?.urlMatching ?? DEFAULT_URL_MATCHER_TYPE} );
+    const matchedResponse = this.mockResponses?.[responseId]
 
     if (matchedResponse != null) {
       try {

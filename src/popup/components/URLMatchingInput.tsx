@@ -15,9 +15,7 @@ interface URLMatchingInputProps {
 export default function URLMatchingInput ({ mockingInProgress }: URLMatchingInputProps) {
   const { preferences, setPreferences } = usePreferences()
 
-  if (typeof preferences?.urlMatching === 'undefined') {
-    return null
-  }
+  console.log('[URLMatchingInput] preferences: ', preferences)
 
   return (
     <FormControl>
@@ -26,12 +24,17 @@ export default function URLMatchingInput ({ mockingInProgress }: URLMatchingInpu
         aria-labelledby="mc--url-matching-radio-buttons-group-label"
         name="url-matching-radio-buttons-group"
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          setPreferences({
-            ...preferences,
-            urlMatching: (event.target as HTMLInputElement).value
-          })
+          preferences ?
+            setPreferences({
+              ...preferences,
+              urlMatching: (event.target as HTMLInputElement).value
+            }) :
+            setPreferences({
+              resourceTypes: [],
+              urlMatching: (event.target as HTMLInputElement).value
+            })
         }}
-        value={preferences?.urlMatching}
+        value={preferences?.urlMatching || null}
         row
       >
         {URL_MATCHER_TYPES.map(({ value, label }) => (
